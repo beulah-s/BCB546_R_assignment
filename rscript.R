@@ -19,4 +19,7 @@ The information is arranged in 986 columns with A/T/G/C bases
 File size is 2.3 MB
 Maize <- filter(Genotypes, Group == "ZMMIL" | Group == "ZMMLR" | Group == "ZMMMR")
 View(Maize)
-select(Genotypes, -c(Sample_ID, JG_OTU))
+Maize.cut <- select(Maize, -c(Sample_ID, JG_OTU, Group))
+View(Maize.cut)
+Trans.maize <- t(Maize.cut)
+View(Trans.maize)
