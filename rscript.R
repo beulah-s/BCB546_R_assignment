@@ -29,11 +29,15 @@ View(snp_position.cut)
 snp_position.cut.sort <- snp_position.cut %>% arrange(SNP_ID)
 View(snp_position.cut.sort)
 Maize.join <- cbind(snp_position.cut.sort,Trans.maize)
+
+#converting multiple/unknown to NA in Position
+
 View(Maize.join)
 new_maize.join <- filter(Maize.join, Chromosome != "unknown" , Position != "unknown")
 new_maize.join2 <- filter(new_maize.join, Chromosome != "multiple", Position != "multiple")
 Maize.join.sort <- arrange(new_maize.join2, as.numeric(new_maize.join2$Position))
 View(Maize.join.sort)
+# arrange in decreasing order of snp positions
 Maize.join.sort.dec <- arrange(new_maize.join2, desc(as.numeric(new_maize.join2$Position)))
 View(Maize.join.sort.dec)
 Chr_1 <- filter(Maize.join.sort, Chromosome == "1")
@@ -48,3 +52,68 @@ Chr_7 <- filter(Maize.join.sort, Chromosome == "7")
 Chr_8 <- filter(Maize.join.sort, Chromosome == "8")
 Chr_9 <- filter(Maize.join.sort, Chromosome == "9")
 Chr_10 <- filter(Maize.join.sort, Chromosome == "10")
+# separate snps in multiple chromosomes
+Maize_multiple <- filter(Maize.join, Chromosome == "multiple")
+View(Maize_multiple)
+# separate snps with chromosome unknown
+Maize_unknown <- filter(Maize.join, Chromosome == "unknown")
+View(Maize_unknown)
+# replacing "?" with "-"
+Maize.join.sort.dec.dash <- data.frame(lapply(Maize.join.sort.dec, gsub, pattern = "[?]", replacement = "-"))
+View(Maize.join.sort.dec.dash)
+# separating them by each chromosome
+Chr_1_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "1")
+View(Chr_1_dec)
+Chr_2_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "2")
+View(Chr_2_dec)
+Chr_3_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "3")
+Chr_4_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "4")
+Chr_5_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "5")
+Chr_6_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "6")
+Chr_7_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "7")
+Chr_8_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "8")
+Chr_9_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "9")
+Chr_10_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "10")
+
+# separate the Teosinte files
+Teosinte <- filter(Genotypes, Group == "ZMPBA" | Group == "ZMPIL" | Group == "ZMPJA")
+Teosinte.cut <- select(Maize, -c(Sample_ID, JG_OTU, Group))
+View(Teosinte.cut)
+Trans.teosinte <- t(Teosinte.cut)
+View(Trans.teosinte)
+
+#Join Teosinte with snp_position
+Teosinte.join <- cbind(snp_position.cut.sort,Trans.teosinte)
+
+#converting multiple/unknown to NA in Position
+
+View(Teosinte.join)
+new_teosinte.join <- filter(Teosinte.join, Chromosome != "unknown" , Position != "unknown")
+new_teosinte.join2 <- filter(new_teosinte.join, Chromosome != "multiple", Position != "multiple")
+
+#arrange Teosinte data by increasing order of position
+Teosinte.join.sort <- arrange(new_teosinte.join2, as.numeric(new_teosinte.join2$Position))
+View(Teosinte.join.sort)
+
+#separate each individual chromosome
+
+Teosinte.Chr_1 <- filter(Teosinte.join.sort, Chromosome == "1")
+View(Teosinte.Chr_1)
+Teosinte.Chr_2 <- filter(Teosinte.join.sort, Chromosome == "2")
+Teosinte.Chr_3 <- filter(Teosinte.join.sort, Chromosome == "3")
+Teosinte.Chr_4 <- filter(Teosinte.join.sort, Chromosome == "4")
+Teosinte.Chr_5 <- filter(Teosinte.join.sort, Chromosome == "5")
+Teosinte.Chr_6 <- filter(Teosinte.join.sort, Chromosome == "6")
+Teosinte.Chr_7 <- filter(Teosinte.join.sort, Chromosome == "7")
+Teosinte.Chr_8 <- filter(Teosinte.join.sort, Chromosome == "8")
+Teosinte.Chr_9 <- filter(Teosinte.join.sort, Chromosome == "9")
+Teosinte.Chr_10 <- filter(Teosinte.join.sort, Chromosome == "10")
+
+# arrange in decreasing order of snp positions
+Teosinte.join.sort.dec <- arrange(new_teosinte.join2, desc(as.numeric(new_teosinte.join2$Position)))
+View(Teosinte.join.sort.dec)
+
+# replacing "?" with "-"
+Teosinte.join.sort.dec.dash <- data.frame(lapply(Teosinte.join.sort.dec, gsub, pattern = "[?]", replacement = "-"))
+View(Teosinte.join.sort.dec.dash)
+getwd()
