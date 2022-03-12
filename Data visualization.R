@@ -61,10 +61,10 @@ Tmaize_long%>%
     +         Species = "Teosinte"
     +         
       +     )%>% {.} -> Tmaize_species
-View(Tmaize_species)
-View(Tmaize_species)
+#View(Tmaize_species)
+#View(Tmaize_species)
 snp_chromosome <- bind_rows(Zmaize_species, Tmaize_species)
-View(snp_chromosome)
+#View(snp_chromosome)
 ggplot(snp_chromosome, aes(x=Chromosome, fill= Species, color= Species)) + geom_bar(bins=10, position = "dodge")
 Warning message:
   Ignoring unknown parameters: bins 

@@ -1,14 +1,16 @@
-getwd()
-``
+library(tidyverse)
+library(dplyr)
 genotype <- read_tsv("https://raw.githubusercontent.com/EEOB-BioData/BCB546-Spring2022/main/assignments/UNIX_Assignment/fang_et_al_genotypes.txt")
 ``
-View(genotype)
+#View(genotype)
 `
 snp_position<-read_tsv("https://raw.githubusercontent.com/EEOB-BioData/BCB546-Spring2022/main/assignments/UNIX_Assignment/snp_position.txt")
 `
-View(snp_position)
+#View(snp_position)
+
 object.size(genotype)
 #23124584 bytes
+object.size(snp_position)
 #359384 bytes
 ncol(genotype)
 #986
@@ -17,33 +19,38 @@ ncol(snp_position)
 #By inspecting this file I learned that:
 #The information is arranged in 986 columns with A/T/G/C bases
 #File size is 2.3 MB
+#To separate the maize groups
 Maize <- filter(Genotypes, Group == "ZMMIL" | Group == "ZMMLR" | Group == "ZMMMR")
-View(Maize)
+#View(Maize)
 Maize.cut <- select(Maize, -c(Sample_ID, JG_OTU, Group))
-View(Maize.cut)
+#View(Maize.cut)
+#to transpose columns to rows
 Trans.maize <- t(Maize.cut)
-View(Trans.maize)
+#View(Trans.maize)
+#read snp_postion file
 snp_position<-read_tsv("https://raw.githubusercontent.com/EEOB-BioData/BCB546-Spring2022/main/assignments/UNIX_Assignment/snp_position.txt")
+#Trim columns
 snp_position.cut <- select(snp_position, SNP_ID | Chromosome | Position)
-View(snp_position.cut)
+#View(snp_position.cut)
 snp_position.cut.sort <- snp_position.cut %>% arrange(SNP_ID)
-View(snp_position.cut.sort)
+#View(snp_position.cut.sort)
+#join maize with snp position
 Maize.join <- cbind(snp_position.cut.sort,Trans.maize)
-
+#View(Maize.join)
 #converting multiple/unknown to NA in Position
 
-View(Maize.join)
 new_maize.join <- filter(Maize.join, Chromosome != "unknown" , Position != "unknown")
 new_maize.join2 <- filter(new_maize.join, Chromosome != "multiple", Position != "multiple")
 Maize.join.sort <- arrange(new_maize.join2, as.numeric(new_maize.join2$Position))
-View(Maize.join.sort)
+#View(Maize.join.sort)
 # arrange in decreasing order of snp positions
 Maize.join.sort.dec <- arrange(new_maize.join2, desc(as.numeric(new_maize.join2$Position)))
-View(Maize.join.sort.dec)
+#View(Maize.join.sort.dec)
+# separate based on chromosome number
 Chr_1 <- filter(Maize.join.sort, Chromosome == "1")
-View(Chr_1)
+#View(Chr_1)
 Chr_2 <- filter(Maize.join.sort, Chromosome == "2")
-View(Chr_2)
+#View(Chr_2)
 Chr_3 <- filter(Maize.join.sort, Chromosome == "3")
 Chr_4 <- filter(Maize.join.sort, Chromosome == "4")
 Chr_5 <- filter(Maize.join.sort, Chromosome == "5")
@@ -54,18 +61,18 @@ Chr_9 <- filter(Maize.join.sort, Chromosome == "9")
 Chr_10 <- filter(Maize.join.sort, Chromosome == "10")
 # separate snps in multiple chromosomes
 Maize_multiple <- filter(Maize.join, Chromosome == "multiple")
-View(Maize_multiple)
+#View(Maize_multiple)
 # separate snps with chromosome unknown
 Maize_unknown <- filter(Maize.join, Chromosome == "unknown")
-View(Maize_unknown)
+#View(Maize_unknown)
 # replacing "?" with "-"
 Maize.join.sort.dec.dash <- data.frame(lapply(Maize.join.sort.dec, gsub, pattern = "[?]", replacement = "-"))
 View(Maize.join.sort.dec.dash)
 # separating them by each chromosome
 Chr_1_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "1")
-View(Chr_1_dec)
+#View(Chr_1_dec)
 Chr_2_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "2")
-View(Chr_2_dec)
+#View(Chr_2_dec)
 Chr_3_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "3")
 Chr_4_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "4")
 Chr_5_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "5")
@@ -78,27 +85,27 @@ Chr_10_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "10")
 # separate the Teosinte files
 Teosinte <- filter(Genotypes, Group == "ZMPBA" | Group == "ZMPIL" | Group == "ZMPJA")
 Teosinte.cut <- select(Maize, -c(Sample_ID, JG_OTU, Group))
-View(Teosinte.cut)
+#View(Teosinte.cut)
 Trans.teosinte <- t(Teosinte.cut)
-View(Trans.teosinte)
+#View(Trans.teosinte)
 
 #Join Teosinte with snp_position
 Teosinte.join <- cbind(snp_position.cut.sort,Trans.teosinte)
 
 #converting multiple/unknown to NA in Position
 
-View(Teosinte.join)
+#View(Teosinte.join)
 new_teosinte.join <- filter(Teosinte.join, Chromosome != "unknown" , Position != "unknown")
 new_teosinte.join2 <- filter(new_teosinte.join, Chromosome != "multiple", Position != "multiple")
 
 #arrange Teosinte data by increasing order of position
 Teosinte.join.sort <- arrange(new_teosinte.join2, as.numeric(new_teosinte.join2$Position))
-View(Teosinte.join.sort)
+#View(Teosinte.join.sort)
 
-#separate each individual chromosome
+#separate individual chromosome
 
 Teosinte.Chr_1 <- filter(Teosinte.join.sort, Chromosome == "1")
-View(Teosinte.Chr_1)
+#View(Teosinte.Chr_1)
 Teosinte.Chr_2 <- filter(Teosinte.join.sort, Chromosome == "2")
 Teosinte.Chr_3 <- filter(Teosinte.join.sort, Chromosome == "3")
 Teosinte.Chr_4 <- filter(Teosinte.join.sort, Chromosome == "4")
@@ -111,65 +118,61 @@ Teosinte.Chr_10 <- filter(Teosinte.join.sort, Chromosome == "10")
 
 # arrange in decreasing order of snp positions
 Teosinte.join.sort.dec <- arrange(new_teosinte.join2, desc(as.numeric(new_teosinte.join2$Position)))
-View(Teosinte.join.sort.dec)
+#View(Teosinte.join.sort.dec)
 
 # replacing "?" with "-"
 Teosinte.join.sort.dec.dash <- data.frame(lapply(Teosinte.join.sort.dec, gsub, pattern = "[?]", replacement = "-"))
 View(Teosinte.join.sort.dec.dash)
+
+# Write tables into files #find the directory to save in
 getwd()
 setwd("C:/Git.folder/BCB546_R_assignment")
 > getwd()
 [1] "C:/Git.folder/BCB546_R_assignment"
-> write.csv(Chr_1,"C:/Git.folder/BCB546_R_assignment//maize.chr1.csv")
-> write.csv(Chr_1,"C:/Git.folder/BCB546_R_assignment//maize.chr1.csv")
-> write.csv(Chr_2,"C:/Git.folder/BCB546_R_assignment//maize.chr2.csv")
-> write.csv(Chr_3,"C:/Git.folder/BCB546_R_assignment//maize.chr3.csv")
-> write.csv(Chr_4,"C:/Git.folder/BCB546_R_assignment//maize.chr4.csv")
-> write.csv(Chr_5,"C:/Git.folder/BCB546_R_assignment//maize.chr5.csv")
-> write.csv(Chr_6,"C:/Git.folder/BCB546_R_assignment//maize.chr6.csv")
-> write.csv(Chr_7,"C:/Git.folder/BCB546_R_assignment//maize.chr7.csv")
-> write.csv(Chr_8,"C:/Git.folder/BCB546_R_assignment//maize.chr8.csv")
-> write.csv(Chr_9,"C:/Git.folder/BCB546_R_assignment//maize.chr9.csv")
-> write.csv(Chr_10,"C:/Git.folder/BCB546_R_assignment//maize.chr10.csv")
-> write.csv(Chr_1_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr10.dec.csv")
-> write.csv(Chr_1_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr1.dec.csv")
-> write.csv(Chr_2_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr2.dec.csv")
-> write.csv(Chr_3_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr3.dec.csv")
-> write.csv(Chr_4_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr4.dec.csv")
-> write.csv(Chr_5_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr5.dec.csv")
-> write.csv(Chr_6_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr6.dec.csv")
-> write.csv(Chr_7_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr7.dec.csv")
-> write.csv(Chr_8_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr8.dec.csv")
-> write.csv(Chr_9_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr9.dec.csv")
-> write.csv(Chr_10_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr10.dec.csv")
-> write.csv(Teosinte.Chr_1,"C:/Git.folder/BCB546_R_assignment//teosinte.chr1.csv")
-> write.csv(Teosinte.Chr_2,"C:/Git.folder/BCB546_R_assignment//teosinte.chr2.csv")
-> write.csv(Teosinte.Chr_3,"C:/Git.folder/BCB546_R_assignment//teosinte.chr3.csv")
-> write.csv(Teosinte.Chr_4,"C:/Git.folder/BCB546_R_assignment//teosinte.chr4.csv")
-> write.csv(Teosinte.Chr_5,"C:/Git.folder/BCB546_R_assignment//teosinte.chr5.csv")
-> write.csv(Teosinte.Chr_6,"C:/Git.folder/BCB546_R_assignment//teosinte.chr6.csv")
-> write.csv(Teosinte.Chr_7,"C:/Git.folder/BCB546_R_assignment//teosinte.chr7.csv")
-> write.csv(Teosinte.Chr_8,"C:/Git.folder/BCB546_R_assignment//teosinte.chr8.csv")
-> write.csv(Teosinte.Chr_9,"C:/Git.folder/BCB546_R_assignment//teosinte.chr9.csv")
-> write.csv(Teosinte.Chr_10,"C:/Git.folder/BCB546_R_assignment//teosinte.chr10.csv")
-> write.csv(Teosinte.Chr_1_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr1.dec.csv")
-> write.csv(Teosinte.Chr_2_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr2.dec.csv")
-> write.csv(Teosinte.Chr_3_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr3.dec.csv")
-> write.csv(Teosinte.Chr_4_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr4.dec.csv")
-> write.csv(Teosinte.Chr_5_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr5.dec.csv")
-> write.csv(Teosinte.Chr_6_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr6.dec.csv")
-> write.csv(Teosinte.Chr_7_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr7.dec.csv")
-> write.csv(Teosinte.Chr_8_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr8.dec.csv")
-> write.csv(Teosinte.Chr_9_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr9.dec.csv")
-> write.csv(Teosinte.Chr_10_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr10.dec.csv")
+write.csv(Chr_1,"C:/Git.folder/BCB546_R_assignment//maize.chr1.csv")
+write.csv(Chr_1,"C:/Git.folder/BCB546_R_assignment//maize.chr1.csv")
+write.csv(Chr_2,"C:/Git.folder/BCB546_R_assignment//maize.chr2.csv")
+write.csv(Chr_3,"C:/Git.folder/BCB546_R_assignment//maize.chr3.csv")
+write.csv(Chr_4,"C:/Git.folder/BCB546_R_assignment//maize.chr4.csv")
+write.csv(Chr_5,"C:/Git.folder/BCB546_R_assignment//maize.chr5.csv")
+write.csv(Chr_6,"C:/Git.folder/BCB546_R_assignment//maize.chr6.csv")
+write.csv(Chr_7,"C:/Git.folder/BCB546_R_assignment//maize.chr7.csv")
+write.csv(Chr_8,"C:/Git.folder/BCB546_R_assignment//maize.chr8.csv")
+write.csv(Chr_9,"C:/Git.folder/BCB546_R_assignment//maize.chr9.csv")
+write.csv(Chr_10,"C:/Git.folder/BCB546_R_assignment//maize.chr10.csv")
+write.csv(Chr_1_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr10.dec.csv")
+write.csv(Chr_1_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr1.dec.csv")
+write.csv(Chr_2_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr2.dec.csv")
+write.csv(Chr_3_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr3.dec.csv")
+write.csv(Chr_4_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr4.dec.csv")
+write.csv(Chr_5_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr5.dec.csv")
+write.csv(Chr_6_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr6.dec.csv")
+write.csv(Chr_7_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr7.dec.csv")
+write.csv(Chr_8_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr8.dec.csv")
+write.csv(Chr_9_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr9.dec.csv")
+write.csv(Chr_10_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr10.dec.csv")
+write.csv(Teosinte.Chr_1,"C:/Git.folder/BCB546_R_assignment//teosinte.chr1.csv")
+write.csv(Teosinte.Chr_2,"C:/Git.folder/BCB546_R_assignment//teosinte.chr2.csv")
+write.csv(Teosinte.Chr_3,"C:/Git.folder/BCB546_R_assignment//teosinte.chr3.csv")
+write.csv(Teosinte.Chr_4,"C:/Git.folder/BCB546_R_assignment//teosinte.chr4.csv")
+write.csv(Teosinte.Chr_5,"C:/Git.folder/BCB546_R_assignment//teosinte.chr5.csv")
+write.csv(Teosinte.Chr_6,"C:/Git.folder/BCB546_R_assignment//teosinte.chr6.csv")
+write.csv(Teosinte.Chr_7,"C:/Git.folder/BCB546_R_assignment//teosinte.chr7.csv")
+write.csv(Teosinte.Chr_8,"C:/Git.folder/BCB546_R_assignment//teosinte.chr8.csv")
+write.csv(Teosinte.Chr_9,"C:/Git.folder/BCB546_R_assignment//teosinte.chr9.csv")
+write.csv(Teosinte.Chr_10,"C:/Git.folder/BCB546_R_assignment//teosinte.chr10.csv")
+write.csv(Teosinte.Chr_1_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr1.dec.csv")
+write.csv(Teosinte.Chr_2_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr2.dec.csv")
+write.csv(Teosinte.Chr_3_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr3.dec.csv")
+write.csv(Teosinte.Chr_4_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr4.dec.csv")
+write.csv(Teosinte.Chr_5_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr5.dec.csv")
+write.csv(Teosinte.Chr_6_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr6.dec.csv")
+write.csv(Teosinte.Chr_7_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr7.dec.csv")
+write.csv(Teosinte.Chr_8_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr8.dec.csv")
+write.csv(Teosinte.Chr_9_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr9.dec.csv")
+write.csv(Teosinte.Chr_10_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr10.dec.csv")
 
-Maize.snps <- select(Maize.join.sort, SNP_ID | Chromosome | Position)
-Maize.snps%>%
-  +     select(Chromosome, Position) %>%
-  +     mutate(
-    +         Species = "Maize"
-    +     )%>% {.} -> Maize.snps.long
-> View(Maize.snps.long)
-
-ggplot(Snps.Maize.Teosinte, aes(x=Chromosome, fill=Species, color=Species)) +
-  +     geom_bar(bins=10, position="dodge")
+# Data visualization
+Maize_long <- Maize.join.sort.dec.dash %>% pivot_longer(!Chromosome, names_to = "Position", values_to= "BP", )%>%  {.}
+Maize_long$Chromosome = as.numeric(as.character(Maize_long$Chromosome))
+mutate(Maize_long, Maize_long$Species <- ("Maize"))
