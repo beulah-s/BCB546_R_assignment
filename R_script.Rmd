@@ -95,7 +95,7 @@ Chr_10_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "10")
 
 # separate the Teosinte files
 Teosinte <- filter(genotype, Group == "ZMPBA" | Group == "ZMPIL" | Group == "ZMPJA")
-Teosinte.cut <- select(Maize, -c(Sample_ID, JG_OTU, Group))
+Teosinte.cut <- select(Teosinte, -c(Sample_ID, JG_OTU, Group))
 #View(Teosinte.cut)
 Trans.teosinte <- t(Teosinte.cut)
 #View(Trans.teosinte)
