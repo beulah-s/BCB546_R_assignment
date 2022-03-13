@@ -37,7 +37,7 @@ snp_position.cut.sort <- snp_position.cut %>% arrange(SNP_ID)
 #join maize with snp position
 Maize.join <- cbind(snp_position.cut.sort,Trans.maize)
 #View(Maize.join)
-#converting multiple/unknown to NA in Position
+#This is adding 'NA' in the place of 'multiple/unknown' in the "Position" column
 
 new_maize.join <- filter(Maize.join, Chromosome != "unknown" , Position != "unknown")
 new_maize.join2 <- filter(new_maize.join, Chromosome != "multiple", Position != "multiple")
