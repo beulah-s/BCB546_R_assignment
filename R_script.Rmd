@@ -134,6 +134,29 @@ Teosinte.join.sort.dec <- arrange(new_teosinte.join2, desc(as.numeric(new_teosin
 # replacing "?" with "-"
 Teosinte.join.sort.dec.dash <- data.frame(lapply(Teosinte.join.sort.dec, gsub, pattern = "[?]", replacement = "-"))
 #View(Teosinte.join.sort.dec.dash)
+
+
+#pivot maize group SNPs to convert columns to rows and get a long file
+Maize_long <- Maize.join.sort.dec.dash %>% pivot_longer(!c(Chromosome,SNP_ID,Position), names_to= "S.No" , values_to= "Bases" )%>%  {.}
+#View(Maize_long)
+
+#add "group" column and file-in as "Maize"
+mutate(Maize_long, Group = "Maize") -> Maize_long_group
+
+#pivot Teosinte group SNPs to convert columns to rows and get a long file
+Teosinte_long <- Teosinte.join.sort.dec.dash %>% pivot_longer(!c(Chromosome,SNP_ID,Position), names_to= "S.No" , values_to= "Bases" )%>%  {.}
+#View(Teosinte_long)
+
+#add "group" column and file-in as "Teosinte"
+mutate(Teosinte_long, Group = "Teosinte") -> Teosinte_long_group
+
+#join Maize and Teosinte long files
+snp_chromosome <- bind_rows(Maize_long_group, Teosinte_long_group)
+View(snp_chromosome)
+
+#plot snps per chromosome in Maize and Teosinte groups
+ggplot(snp_chromosome, aes(x=Chromosome, fill= Group, color= Group)) + geom_bar(bins=10, position = "dodge")
+
 ```
 
 ## Write files 
