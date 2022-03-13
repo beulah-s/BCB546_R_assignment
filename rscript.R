@@ -84,7 +84,7 @@ Chr_10_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "10")
 
 # separate the Teosinte files
 Teosinte <- filter(genotype, Group == "ZMPBA" | Group == "ZMPIL" | Group == "ZMPJA")
-Teosinte.cut <- select(Maize, -c(Sample_ID, JG_OTU, Group))
+Teosinte.cut <- select(Teosinte, -c(Sample_ID, JG_OTU, Group))
 #View(Teosinte.cut)
 Trans.teosinte <- t(Teosinte.cut)
 #View(Trans.teosinte)
@@ -172,6 +172,16 @@ write.csv(Teosinte.Chr_9_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr9.d
 write.csv(Teosinte.Chr_10_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr10.dec.csv")
 
 # Data visualization
-Maize_long <- Maize.join.sort.dec.dash %>% pivot_longer(!Chromosome, names_to = "Position", values_to= "BP", )%>%  {.}
-Maize_long$Chromosome = as.numeric(as.character(Maize_long$Chromosome))
-mutate(Maize_long, Maize_long$Species <- ("Maize"))
+#pivot maize group SNPs to convert columns to rows and get a long file
+Maize_long <- Maize.join.sort.dec.dash %>% pivot_longer(!c(Chromosome,SNP_ID,Position), names_to= "S.No" , values_to= "Bases" )%>%  {.}
+#View(Maize_long)
+#add "group" column and file-in as "Maize"
+mutate(Maize_long, Group = "Maize") -> Maize_long_group
+#pivot Teosinte group SNPs to convert columns to rows and get a long file
+Teosinte_long <- Teosinte.join.sort.dec.dash %>% pivot_longer(!c(Chromosome,SNP_ID,Position), names_to= "S.No" , values_to= "Bases" )%>%  {.}
+#View(Teosinte_long)
+#add "group" column and file-in as "Teosinte"
+mutate(Teosinte_long, Group = "Teosinte") -> Teosinte_long_group
+snp_chromosome <- bind_rows(Maize_long_group, Teosinte_long_group)
+View(snp_chromosome)
+ggplot(snp_chromosome, aes(x=Chromosome, fill= Group, color= Group)) + geom_bar(bins=10, position = "dodge")
