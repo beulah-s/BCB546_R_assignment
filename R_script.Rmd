@@ -19,6 +19,7 @@ snp_position<-read_tsv("https://raw.githubusercontent.com/EEOB-BioData/BCB546-Sp
 `
 #View(snp_position)
 
+#DATA INSPECTION
 object.size(genotype)
 #23124584 bytes
 object.size(snp_position)
@@ -30,6 +31,8 @@ ncol(snp_position)
 #By inspecting this file I learned that:
 #The information is arranged in 986 columns with A/T/G/C bases
 #File size is 2.3 MB
+
+#DATA PROCESSING
 #To separate the maize groups
 Maize <- filter(genotype, Group == "ZMMIL" | Group == "ZMMLR" | Group == "ZMMMR")
 #View(Maize)
@@ -135,7 +138,7 @@ Teosinte.join.sort.dec <- arrange(new_teosinte.join2, desc(as.numeric(new_teosin
 Teosinte.join.sort.dec.dash <- data.frame(lapply(Teosinte.join.sort.dec, gsub, pattern = "[?]", replacement = "-"))
 #View(Teosinte.join.sort.dec.dash)
 
-
+#DATA VISUALIZATION
 #pivot maize group SNPs to convert columns to rows and get a long file
 Maize_long <- Maize.join.sort.dec.dash %>% pivot_longer(!c(Chromosome,SNP_ID,Position), names_to= "S.No" , values_to= "Bases" )%>%  {.}
 #View(Maize_long)
