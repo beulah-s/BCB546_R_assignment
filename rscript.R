@@ -20,7 +20,7 @@ ncol(snp_position)
 #The information is arranged in 986 columns with A/T/G/C bases
 #File size is 2.3 MB
 #To separate the maize groups
-Maize <- filter(Genotypes, Group == "ZMMIL" | Group == "ZMMLR" | Group == "ZMMMR")
+Maize <- filter(genotype, Group == "ZMMIL" | Group == "ZMMLR" | Group == "ZMMMR")
 #View(Maize)
 Maize.cut <- select(Maize, -c(Sample_ID, JG_OTU, Group))
 #View(Maize.cut)
