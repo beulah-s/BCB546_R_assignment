@@ -83,7 +83,7 @@ Chr_9_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "9")
 Chr_10_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "10")
 
 # separate the Teosinte files
-Teosinte <- filter(Genotypes, Group == "ZMPBA" | Group == "ZMPIL" | Group == "ZMPJA")
+Teosinte <- filter(genotype, Group == "ZMPBA" | Group == "ZMPIL" | Group == "ZMPJA")
 Teosinte.cut <- select(Maize, -c(Sample_ID, JG_OTU, Group))
 #View(Teosinte.cut)
 Trans.teosinte <- t(Teosinte.cut)
@@ -92,7 +92,6 @@ Trans.teosinte <- t(Teosinte.cut)
 #Join Teosinte with snp_position
 Teosinte.join <- cbind(snp_position.cut.sort,Trans.teosinte)
 
-#converting multiple/unknown to NA in Position
 
 #View(Teosinte.join)
 new_teosinte.join <- filter(Teosinte.join, Chromosome != "unknown" , Position != "unknown")
