@@ -1,5 +1,7 @@
 library(tidyverse)
 library(dplyr)
+library(ggplot2)
+library(reshape2)
 genotype <- read_tsv("https://raw.githubusercontent.com/EEOB-BioData/BCB546-Spring2022/main/assignments/UNIX_Assignment/fang_et_al_genotypes.txt")
 ``
 #View(genotype)
@@ -123,6 +125,19 @@ Teosinte.join.sort.dec <- arrange(new_teosinte.join2, desc(as.numeric(new_teosin
 Teosinte.join.sort.dec.dash <- data.frame(lapply(Teosinte.join.sort.dec, gsub, pattern = "[?]", replacement = "-"))
 View(Teosinte.join.sort.dec.dash)
 
+#separate individual chromosome
+Teosinte.Chr_1_dec <- filter(Teosinte.join.sort.dec.dash, Chromosome == "1")
+Teosinte.Chr_2_dec <- filter(Teosinte.join.sort.dec.dash, Chromosome == "2")
+Teosinte.Chr_3_dec <- filter(Teosinte.join.sort.dec.dash, Chromosome == "3")
+Teosinte.Chr_4_dec <- filter(Teosinte.join.sort.dec.dash, Chromosome == "4")
+Teosinte.Chr_5_dec <- filter(Teosinte.join.sort.dec.dash, Chromosome == "5")
+Teosinte.Chr_6_dec <- filter(Teosinte.join.sort.dec.dash, Chromosome == "6")
+Teosinte.Chr_7_dec <- filter(Teosinte.join.sort.dec.dash, Chromosome == "7")
+Teosinte.Chr_8_dec <- filter(Teosinte.join.sort.dec.dash, Chromosome == "8")
+Teosinte.Chr_9_dec <- filter(Teosinte.join.sort.dec.dash, Chromosome == "9")
+Teosinte.Chr_10_dec <- filter(Teosinte.join.sort.dec.dash, Chromosome == "10")
+
+
 # Write tables into files #find the directory to save in
 getwd()
 setwd("C:/Git.folder/BCB546_R_assignment")
@@ -172,6 +187,8 @@ write.csv(Teosinte.Chr_9_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr9.d
 write.csv(Teosinte.Chr_10_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr10.dec.csv")
 
 # Data visualization
+
+#1. Graph SNPs per chromosome across maize and teosinte groups
 #pivot maize group SNPs to convert columns to rows and get a long file
 Maize_long <- Maize.join.sort.dec.dash %>% pivot_longer(!c(Chromosome,SNP_ID,Position), names_to= "S.No" , values_to= "Bases" )%>%  {.}
 #View(Maize_long)
@@ -185,14 +202,17 @@ mutate(Teosinte_long, Group = "Teosinte") -> Teosinte_long_group
 #join the 2 long files
 snp_chromosome <- bind_rows(Maize_long_group, Teosinte_long_group)
 View(snp_chromosome)
-#plot bar graph of snps per chromosome in across groups
+#plot bar graph of snps per chromosome across groups
 ggplot(snp_chromosome, aes(x=Chromosome, fill= Group, color= Group)) + geom_bar(bins=10, position = "dodge")
 
-#2 Zygosity by sample
+#2A. Zygosity by sample
+#pivot the genotype file
+genotype_1 <- genotype %>% pivot_longer(!c(Sample_ID, JG_OTU, Group), names_to="SNP_ID", values_to= "value")
 # separate the homozygous entries 
 Homozygous <- filter(genotype_1, value == "A/A" | value == "T/T" | value == "G/G" | value == "C/C")
 head(Homozygous)
 #add "zygosity" column and mark as "homozygous"
+Homozygous <- mutate(Homozygous, Zygosity = "Homozygous")
 # separate the heterozygous entries
 Heterozygous <- filter(genotype_1, value == "A/C" | value == "A/T" | value == "A/G" | value == "C/A" | value == "C/T" | value == "C/G" | value == "G/A" | value == "G/C" | value == "G/T" | value == "T/A" | value == "T/C" | value == "T/G")
 #add "zygosity" column and mark as "heterozygous"
@@ -205,9 +225,24 @@ Missing.value <- mutate(Missing.value, Zygosity = "Missing.value")
 Zygosity.by.sample <- bind_rows(Homozygous, Heterozygous, Missing.value)
 # plot zygosity by sample
 ggplot(Zygosity.by.sample, aes(x=Sample_ID, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
-# plot zygosity by group
+
+#2B. plot zygosity by group
 ggplot(Zygosity.by.sample, aes(x=Group, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
 # separate maize and teosinte groups alone
 Zygosity.maize.teosinte <- filter(Zygosity.by.sample, Group =="ZMMIL" | Group == "ZMMMR" | Group == "ZMMLR" | Group == "ZMPBA" | Group == "ZMPIL" | Group == "ZMPJA")
 # plot zygosity for maize and teosinte groups
 ggplot(Zygosity.maize.teosinte, aes(x=Group, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
+
+#Data I chose to visualize
+#zygosity by chromosome - I used "Maize_long" because it has the data pivoted and ready to be named as per zygosity
+View(Maize_long)
+# separate homozygous, heterozygous and missing values and add column to label them
+Maize_homozygous <- filter(Maize_long, Bases == "A/A" | Bases == "T/T" | Bases == "G/G" | Bases == "C/C")
+Maize_homozygous <- mutate(Maize_homozygous, Zygosity = "Homozygous")
+Maize_heterozygous <- filter(Maize_long, Bases == "A/C" | Bases == "A/T" | Bases == "A/G" | Bases == "C/A" | Bases == "C/T" | Bases == "C/G" | Bases == "G/A" | Bases == "G/C" | Bases == "G/T" | Bases == "T/A" | Bases == "T/C" | Bases == "T/G")
+Maize_heterozygous <- mutate(Maize_heterozygous, Zygosity = "Heterozygous")
+Maize_Missing.value <- filter(Maize_long, Bases == "-/-")
+Maize_Missing.value <- mutate(Maize_Missing.value, Zygosity = "Missing.value")
+#combine the files and plot maize.by.zygosity across chromosomes
+Maize.by.zygosity <- bind_rows(Maize_homozygous, Maize_heterozygous, Maize_Missing.value)
+ggplot(Maize.by.zygosity, aes(x=Chromosome, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
