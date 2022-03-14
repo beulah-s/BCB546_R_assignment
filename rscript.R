@@ -182,6 +182,32 @@ Teosinte_long <- Teosinte.join.sort.dec.dash %>% pivot_longer(!c(Chromosome,SNP_
 #View(Teosinte_long)
 #add "group" column and file-in as "Teosinte"
 mutate(Teosinte_long, Group = "Teosinte") -> Teosinte_long_group
+#join the 2 long files
 snp_chromosome <- bind_rows(Maize_long_group, Teosinte_long_group)
 View(snp_chromosome)
+#plot bar graph of snps per chromosome in across groups
 ggplot(snp_chromosome, aes(x=Chromosome, fill= Group, color= Group)) + geom_bar(bins=10, position = "dodge")
+
+#2 Zygosity by sample
+# separate the homozygous entries 
+Homozygous <- filter(genotype_1, value == "A/A" | value == "T/T" | value == "G/G" | value == "C/C")
+head(Homozygous)
+#add "zygosity" column and mark as "homozygous"
+# separate the heterozygous entries
+Heterozygous <- filter(genotype_1, value == "A/C" | value == "A/T" | value == "A/G" | value == "C/A" | value == "C/T" | value == "C/G" | value == "G/A" | value == "G/C" | value == "G/T" | value == "T/A" | value == "T/C" | value == "T/G")
+#add "zygosity" column and mark as "heterozygous"
+Heterozygous <- mutate(Heterozygous, Zygosity = "Heterozygous")
+# separate missing values
+Missing.value <- filter(genotype_1, value == "?/?")
+#add "zygosity" column and mark as "missing value"
+Missing.value <- mutate(Missing.value, Zygosity = "Missing.value")
+# combine rows for homozygous, heterozygous and missing values
+Zygosity.by.sample <- bind_rows(Homozygous, Heterozygous, Missing.value)
+# plot zygosity by sample
+ggplot(Zygosity.by.sample, aes(x=Sample_ID, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
+# plot zygosity by group
+ggplot(Zygosity.by.sample, aes(x=Group, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
+# separate maize and teosinte groups alone
+Zygosity.maize.teosinte <- filter(Zygosity.by.sample, Group =="ZMMIL" | Group == "ZMMMR" | Group == "ZMMLR" | Group == "ZMPBA" | Group == "ZMPIL" | Group == "ZMPJA")
+# plot zygosity for maize and teosinte groups
+ggplot(Zygosity.maize.teosinte, aes(x=Group, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
