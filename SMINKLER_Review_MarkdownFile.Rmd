@@ -1,0 +1,7 @@
+---
+title: "SMINKLER_review"
+output: html_document
+date: '2022-03-15'
+---
+
+Your code ran really well on my computer and all of your files look like they are in order. Your visualization looks really good and clean. The only thing I might suggest changing is your plot zygosity by sample to something that would be a little easier to view. The X axis is crammed and the bars are squished together. Maybe if you did it as a porportion of the data, instead of count, it might make it look a little cleaner! Just a small suggestion, but really not necessary. Good job!
