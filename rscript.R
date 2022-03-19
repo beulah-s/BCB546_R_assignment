@@ -1,58 +1,56 @@
+#install required packages
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
 library(reshape2)
-genotype <- read_tsv("https://raw.githubusercontent.com/EEOB-BioData/BCB546-Spring2022/main/assignments/UNIX_Assignment/fang_et_al_genotypes.txt")
-``
-#View(genotype)
-`
-snp_position<-read_tsv("https://raw.githubusercontent.com/EEOB-BioData/BCB546-Spring2022/main/assignments/UNIX_Assignment/snp_position.txt")
-`
-#View(snp_position)
 
+#read fang_et_al_genotypes.txt file #reads as an object
+genotype <- read_tsv("https://raw.githubusercontent.com/EEOB-BioData/BCB546-Spring2022/main/assignments/UNIX_Assignment/fang_et_al_genotypes.txt")
+
+#read snp_position.txt #reads as an object
+snp_position<-read_tsv("https://raw.githubusercontent.com/EEOB-BioData/BCB546-Spring2022/main/assignments/UNIX_Assignment/snp_position.txt")
+
+#DATA INSPECTION
 object.size(genotype)
-#23124584 bytes
 object.size(snp_position)
-#359384 bytes
 ncol(genotype)
-#986
 ncol(snp_position)
-#15
+
 #By inspecting this file I learned that:
-#The information is arranged in 986 columns with A/T/G/C bases
+#The table has 986 columns with sample info and snps with A/T/G/C bases
 #File size is 2.3 MB
+#snp_position has 15 columns with chromosome number and position
+#File size is 0.35 MB
+
+#DATA PROCESSING
 #To separate the maize groups
 Maize <- filter(genotype, Group == "ZMMIL" | Group == "ZMMLR" | Group == "ZMMMR")
-#View(Maize)
+#Trim maize file
 Maize.cut <- select(Maize, -c(Sample_ID, JG_OTU, Group))
-#View(Maize.cut)
+
 #to transpose columns to rows
 Trans.maize <- t(Maize.cut)
-#View(Trans.maize)
-#read snp_postion file
-snp_position<-read_tsv("https://raw.githubusercontent.com/EEOB-BioData/BCB546-Spring2022/main/assignments/UNIX_Assignment/snp_position.txt")
-#Trim columns
+
+#Trim columns in snp_position file
 snp_position.cut <- select(snp_position, SNP_ID | Chromosome | Position)
-#View(snp_position.cut)
 snp_position.cut.sort <- snp_position.cut %>% arrange(SNP_ID)
-#View(snp_position.cut.sort)
+
 #join maize with snp position
 Maize.join <- cbind(snp_position.cut.sort,Trans.maize)
-#View(Maize.join)
-#This is adding 'NA' in the place of 'multiple/unknown' in the "Position" column
+#This inserts NA in the place of multiple/unknown in the "Position" column
 
+#remove "unknown" and "multiple"
 new_maize.join <- filter(Maize.join, Chromosome != "unknown" , Position != "unknown")
 new_maize.join2 <- filter(new_maize.join, Chromosome != "multiple", Position != "multiple")
+#sort file
 Maize.join.sort <- arrange(new_maize.join2, as.numeric(new_maize.join2$Position))
-#View(Maize.join.sort)
+
 # arrange in decreasing order of snp positions
 Maize.join.sort.dec <- arrange(new_maize.join2, desc(as.numeric(new_maize.join2$Position)))
-#View(Maize.join.sort.dec)
+
 # separate based on chromosome number
 Chr_1 <- filter(Maize.join.sort, Chromosome == "1")
-#View(Chr_1)
 Chr_2 <- filter(Maize.join.sort, Chromosome == "2")
-#View(Chr_2)
 Chr_3 <- filter(Maize.join.sort, Chromosome == "3")
 Chr_4 <- filter(Maize.join.sort, Chromosome == "4")
 Chr_5 <- filter(Maize.join.sort, Chromosome == "5")
@@ -61,20 +59,19 @@ Chr_7 <- filter(Maize.join.sort, Chromosome == "7")
 Chr_8 <- filter(Maize.join.sort, Chromosome == "8")
 Chr_9 <- filter(Maize.join.sort, Chromosome == "9")
 Chr_10 <- filter(Maize.join.sort, Chromosome == "10")
+
 # separate snps in multiple chromosomes
 Maize_multiple <- filter(Maize.join, Chromosome == "multiple")
-#View(Maize_multiple)
+
 # separate snps with chromosome unknown
 Maize_unknown <- filter(Maize.join, Chromosome == "unknown")
-#View(Maize_unknown)
+
 # replacing "?" with "-"
 Maize.join.sort.dec.dash <- data.frame(lapply(Maize.join.sort.dec, gsub, pattern = "[?]", replacement = "-"))
-View(Maize.join.sort.dec.dash)
+
 # separating them by each chromosome
 Chr_1_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "1")
-#View(Chr_1_dec)
 Chr_2_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "2")
-#View(Chr_2_dec)
 Chr_3_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "3")
 Chr_4_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "4")
 Chr_5_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "5")
@@ -84,29 +81,23 @@ Chr_8_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "8")
 Chr_9_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "9")
 Chr_10_dec <- filter(Maize.join.sort.dec.dash, Chromosome == "10")
 
-# separate the Teosinte files
+# separate the Teosinte files and trim columns
 Teosinte <- filter(genotype, Group == "ZMPBA" | Group == "ZMPIL" | Group == "ZMPJA")
 Teosinte.cut <- select(Teosinte, -c(Sample_ID, JG_OTU, Group))
-#View(Teosinte.cut)
 Trans.teosinte <- t(Teosinte.cut)
-#View(Trans.teosinte)
+
 
 #Join Teosinte with snp_position
 Teosinte.join <- cbind(snp_position.cut.sort,Trans.teosinte)
-
-
-#View(Teosinte.join)
+#remove "unknown" and "multiple"
 new_teosinte.join <- filter(Teosinte.join, Chromosome != "unknown" , Position != "unknown")
 new_teosinte.join2 <- filter(new_teosinte.join, Chromosome != "multiple", Position != "multiple")
 
 #arrange Teosinte data by increasing order of position
 Teosinte.join.sort <- arrange(new_teosinte.join2, as.numeric(new_teosinte.join2$Position))
-#View(Teosinte.join.sort)
 
 #separate individual chromosome
-
 Teosinte.Chr_1 <- filter(Teosinte.join.sort, Chromosome == "1")
-#View(Teosinte.Chr_1)
 Teosinte.Chr_2 <- filter(Teosinte.join.sort, Chromosome == "2")
 Teosinte.Chr_3 <- filter(Teosinte.join.sort, Chromosome == "3")
 Teosinte.Chr_4 <- filter(Teosinte.join.sort, Chromosome == "4")
@@ -119,11 +110,9 @@ Teosinte.Chr_10 <- filter(Teosinte.join.sort, Chromosome == "10")
 
 # arrange in decreasing order of snp positions
 Teosinte.join.sort.dec <- arrange(new_teosinte.join2, desc(as.numeric(new_teosinte.join2$Position)))
-#View(Teosinte.join.sort.dec)
 
 # replacing "?" with "-"
 Teosinte.join.sort.dec.dash <- data.frame(lapply(Teosinte.join.sort.dec, gsub, pattern = "[?]", replacement = "-"))
-View(Teosinte.join.sort.dec.dash)
 
 #separate individual chromosome
 Teosinte.Chr_1_dec <- filter(Teosinte.join.sort.dec.dash, Chromosome == "1")
@@ -137,80 +126,33 @@ Teosinte.Chr_8_dec <- filter(Teosinte.join.sort.dec.dash, Chromosome == "8")
 Teosinte.Chr_9_dec <- filter(Teosinte.join.sort.dec.dash, Chromosome == "9")
 Teosinte.Chr_10_dec <- filter(Teosinte.join.sort.dec.dash, Chromosome == "10")
 
-
-# Write tables into files #find the directory to save in
-getwd()
-setwd("C:/Git.folder/BCB546_R_assignment")
-> getwd()
-[1] "C:/Git.folder/BCB546_R_assignment"
-write.csv(Chr_1,"C:/Git.folder/BCB546_R_assignment//maize.chr1.csv")
-write.csv(Chr_1,"C:/Git.folder/BCB546_R_assignment//maize.chr1.csv")
-write.csv(Chr_2,"C:/Git.folder/BCB546_R_assignment//maize.chr2.csv")
-write.csv(Chr_3,"C:/Git.folder/BCB546_R_assignment//maize.chr3.csv")
-write.csv(Chr_4,"C:/Git.folder/BCB546_R_assignment//maize.chr4.csv")
-write.csv(Chr_5,"C:/Git.folder/BCB546_R_assignment//maize.chr5.csv")
-write.csv(Chr_6,"C:/Git.folder/BCB546_R_assignment//maize.chr6.csv")
-write.csv(Chr_7,"C:/Git.folder/BCB546_R_assignment//maize.chr7.csv")
-write.csv(Chr_8,"C:/Git.folder/BCB546_R_assignment//maize.chr8.csv")
-write.csv(Chr_9,"C:/Git.folder/BCB546_R_assignment//maize.chr9.csv")
-write.csv(Chr_10,"C:/Git.folder/BCB546_R_assignment//maize.chr10.csv")
-write.csv(Chr_1_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr10.dec.csv")
-write.csv(Chr_1_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr1.dec.csv")
-write.csv(Chr_2_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr2.dec.csv")
-write.csv(Chr_3_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr3.dec.csv")
-write.csv(Chr_4_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr4.dec.csv")
-write.csv(Chr_5_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr5.dec.csv")
-write.csv(Chr_6_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr6.dec.csv")
-write.csv(Chr_7_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr7.dec.csv")
-write.csv(Chr_8_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr8.dec.csv")
-write.csv(Chr_9_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr9.dec.csv")
-write.csv(Chr_10_dec,"C:/Git.folder/BCB546_R_assignment//maize.chr10.dec.csv")
-write.csv(Teosinte.Chr_1,"C:/Git.folder/BCB546_R_assignment//teosinte.chr1.csv")
-write.csv(Teosinte.Chr_2,"C:/Git.folder/BCB546_R_assignment//teosinte.chr2.csv")
-write.csv(Teosinte.Chr_3,"C:/Git.folder/BCB546_R_assignment//teosinte.chr3.csv")
-write.csv(Teosinte.Chr_4,"C:/Git.folder/BCB546_R_assignment//teosinte.chr4.csv")
-write.csv(Teosinte.Chr_5,"C:/Git.folder/BCB546_R_assignment//teosinte.chr5.csv")
-write.csv(Teosinte.Chr_6,"C:/Git.folder/BCB546_R_assignment//teosinte.chr6.csv")
-write.csv(Teosinte.Chr_7,"C:/Git.folder/BCB546_R_assignment//teosinte.chr7.csv")
-write.csv(Teosinte.Chr_8,"C:/Git.folder/BCB546_R_assignment//teosinte.chr8.csv")
-write.csv(Teosinte.Chr_9,"C:/Git.folder/BCB546_R_assignment//teosinte.chr9.csv")
-write.csv(Teosinte.Chr_10,"C:/Git.folder/BCB546_R_assignment//teosinte.chr10.csv")
-write.csv(Teosinte.Chr_1_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr1.dec.csv")
-write.csv(Teosinte.Chr_2_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr2.dec.csv")
-write.csv(Teosinte.Chr_3_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr3.dec.csv")
-write.csv(Teosinte.Chr_4_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr4.dec.csv")
-write.csv(Teosinte.Chr_5_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr5.dec.csv")
-write.csv(Teosinte.Chr_6_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr6.dec.csv")
-write.csv(Teosinte.Chr_7_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr7.dec.csv")
-write.csv(Teosinte.Chr_8_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr8.dec.csv")
-write.csv(Teosinte.Chr_9_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr9.dec.csv")
-write.csv(Teosinte.Chr_10_dec,"C:/Git.folder/BCB546_R_assignment//teosinte.chr10.dec.csv")
-
-# Data visualization
-
+#DATA VISUALIZATION
 #1. Graph SNPs per chromosome across maize and teosinte groups
 #pivot maize group SNPs to convert columns to rows and get a long file
 Maize_long <- Maize.join.sort.dec.dash %>% pivot_longer(!c(Chromosome,SNP_ID,Position), names_to= "S.No" , values_to= "Bases" )%>%  {.}
-#View(Maize_long)
+
 #add "group" column and file-in as "Maize"
 mutate(Maize_long, Group = "Maize") -> Maize_long_group
+
 #pivot Teosinte group SNPs to convert columns to rows and get a long file
 Teosinte_long <- Teosinte.join.sort.dec.dash %>% pivot_longer(!c(Chromosome,SNP_ID,Position), names_to= "S.No" , values_to= "Bases" )%>%  {.}
-#View(Teosinte_long)
+
 #add "group" column and file-in as "Teosinte"
 mutate(Teosinte_long, Group = "Teosinte") -> Teosinte_long_group
-#join the 2 long files
+
+#join Maize and Teosinte long files
 snp_chromosome <- bind_rows(Maize_long_group, Teosinte_long_group)
-View(snp_chromosome)
-#plot bar graph of snps per chromosome across groups
-ggplot(snp_chromosome, aes(x=Chromosome, fill= Group, color= Group)) + geom_bar(bins=10, position = "dodge")
+
+#plot snps per chromosome in Maize and Teosinte groups
+e <- ggplot(snp_chromosome, aes(x=Chromosome, fill= Group, color= Group)) + geom_bar(bins=10, position = "dodge")
+e + ggtitle("SNPs per chromosome - Maize Vs Teosinte")
+
 
 #2A. Zygosity by sample
 #pivot the genotype file
 genotype_1 <- genotype %>% pivot_longer(!c(Sample_ID, JG_OTU, Group), names_to="SNP_ID", values_to= "value")
 # separate the homozygous entries 
 Homozygous <- filter(genotype_1, value == "A/A" | value == "T/T" | value == "G/G" | value == "C/C")
-head(Homozygous)
 #add "zygosity" column and mark as "homozygous"
 Homozygous <- mutate(Homozygous, Zygosity = "Homozygous")
 # separate the heterozygous entries
@@ -224,18 +166,23 @@ Missing.value <- mutate(Missing.value, Zygosity = "Missing.value")
 # combine rows for homozygous, heterozygous and missing values
 Zygosity.by.sample <- bind_rows(Homozygous, Heterozygous, Missing.value)
 # plot zygosity by sample
-ggplot(Zygosity.by.sample, aes(x=Sample_ID, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
+b <- ggplot(Zygosity.by.sample, aes(x=Sample_ID, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
+b + ggtitle("Zygosity by sample")
 
 #2B. plot zygosity by group
-ggplot(Zygosity.by.sample, aes(x=Group, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
+p <- ggplot(Zygosity.by.sample, aes(x=Group, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position="dodge")
+#labels in x-axis overlap, so change direction to 90 degrees)
+p <- p + theme(axis.text.x = element_text(angle = 90))
+p + ggtitle("Zygosity by group")
+
 # separate maize and teosinte groups alone
 Zygosity.maize.teosinte <- filter(Zygosity.by.sample, Group =="ZMMIL" | Group == "ZMMMR" | Group == "ZMMLR" | Group == "ZMPBA" | Group == "ZMPIL" | Group == "ZMPJA")
 # plot zygosity for maize and teosinte groups
-ggplot(Zygosity.maize.teosinte, aes(x=Group, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
+d <- ggplot(Zygosity.maize.teosinte, aes(x=Group, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
+d + ggtitle("Zygosity for Maize and Teosinte groups")
 
 #Data I chose to visualize
-#zygosity by chromosome - I used "Maize_long" because it has the data pivoted and ready to be named as per zygosity
-View(Maize_long)
+#zygosity by chromosome for maize - I used "Maize_long" because it has the data pivoted and ready to be named as per zygosity
 # separate homozygous, heterozygous and missing values and add column to label them
 Maize_homozygous <- filter(Maize_long, Bases == "A/A" | Bases == "T/T" | Bases == "G/G" | Bases == "C/C")
 Maize_homozygous <- mutate(Maize_homozygous, Zygosity = "Homozygous")
@@ -245,4 +192,5 @@ Maize_Missing.value <- filter(Maize_long, Bases == "-/-")
 Maize_Missing.value <- mutate(Maize_Missing.value, Zygosity = "Missing.value")
 #combine the files and plot maize.by.zygosity across chromosomes
 Maize.by.zygosity <- bind_rows(Maize_homozygous, Maize_heterozygous, Maize_Missing.value)
-ggplot(Maize.by.zygosity, aes(x=Chromosome, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
+g <- ggplot(Maize.by.zygosity, aes(x=Chromosome, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
+g + ggtitle("Zygosity by chromosome - Maize")

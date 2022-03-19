@@ -196,7 +196,6 @@ d + ggtitle("Zygosity for Maize and Teosinte groups")
 
 #Data I chose to visualize
 #zygosity by chromosome for maize - I used "Maize_long" because it has the data pivoted and ready to be named as per zygosity
-View(Maize_long)
 # separate homozygous, heterozygous and missing values and add column to label them
 Maize_homozygous <- filter(Maize_long, Bases == "A/A" | Bases == "T/T" | Bases == "G/G" | Bases == "C/C")
 Maize_homozygous <- mutate(Maize_homozygous, Zygosity = "Homozygous")
