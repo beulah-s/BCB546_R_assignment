@@ -157,7 +157,8 @@ mutate(Teosinte_long, Group = "Teosinte") -> Teosinte_long_group
 snp_chromosome <- bind_rows(Maize_long_group, Teosinte_long_group)
 
 #plot snps per chromosome in Maize and Teosinte groups
-ggplot(snp_chromosome, aes(x=Chromosome, fill= Group, color= Group)) + geom_bar(bins=10, position = "dodge")
+e <- ggplot(snp_chromosome, aes(x=Chromosome, fill= Group, color= Group)) + geom_bar(bins=10, position = "dodge")
+e + ggtitle("SNPs per chromosome - Maize Vs Teosinte")
 
 
 #2A. Zygosity by sample
@@ -165,7 +166,6 @@ ggplot(snp_chromosome, aes(x=Chromosome, fill= Group, color= Group)) + geom_bar(
 genotype_1 <- genotype %>% pivot_longer(!c(Sample_ID, JG_OTU, Group), names_to="SNP_ID", values_to= "value")
 # separate the homozygous entries 
 Homozygous <- filter(genotype_1, value == "A/A" | value == "T/T" | value == "G/G" | value == "C/C")
-head(Homozygous)
 #add "zygosity" column and mark as "homozygous"
 Homozygous <- mutate(Homozygous, Zygosity = "Homozygous")
 # separate the heterozygous entries
@@ -179,18 +179,23 @@ Missing.value <- mutate(Missing.value, Zygosity = "Missing.value")
 # combine rows for homozygous, heterozygous and missing values
 Zygosity.by.sample <- bind_rows(Homozygous, Heterozygous, Missing.value)
 # plot zygosity by sample
-ggplot(Zygosity.by.sample, aes(x=Sample_ID, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
+b <- ggplot(Zygosity.by.sample, aes(x=Sample_ID, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
+b + ggtitle("Zygosity by sample")
 
 #2B. plot zygosity by group
-ggplot(Zygosity.by.sample, aes(x=Group, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
+p <- ggplot(Zygosity.by.sample, aes(x=Group, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position="dodge")
+#labels in x-axis overlap, so change direction to 90 degrees)
+p <- p + theme(axis.text.x = element_text(angle = 90))
+p + ggtitle("Zygosity by group")
 
 # separate maize and teosinte groups alone
 Zygosity.maize.teosinte <- filter(Zygosity.by.sample, Group =="ZMMIL" | Group == "ZMMMR" | Group == "ZMMLR" | Group == "ZMPBA" | Group == "ZMPIL" | Group == "ZMPJA")
 # plot zygosity for maize and teosinte groups
-ggplot(Zygosity.maize.teosinte, aes(x=Group, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
+d <- ggplot(Zygosity.maize.teosinte, aes(x=Group, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
+d + ggtitle("Zygosity for Maize and Teosinte groups")
 
 #Data I chose to visualize
-#zygosity by chromosome - I used "Maize_long" because it has the data pivoted and ready to be named as per zygosity
+#zygosity by chromosome for maize - I used "Maize_long" because it has the data pivoted and ready to be named as per zygosity
 View(Maize_long)
 # separate homozygous, heterozygous and missing values and add column to label them
 Maize_homozygous <- filter(Maize_long, Bases == "A/A" | Bases == "T/T" | Bases == "G/G" | Bases == "C/C")
@@ -201,7 +206,8 @@ Maize_Missing.value <- filter(Maize_long, Bases == "-/-")
 Maize_Missing.value <- mutate(Maize_Missing.value, Zygosity = "Missing.value")
 #combine the files and plot maize.by.zygosity across chromosomes
 Maize.by.zygosity <- bind_rows(Maize_homozygous, Maize_heterozygous, Maize_Missing.value)
-ggplot(Maize.by.zygosity, aes(x=Chromosome, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
+g <- ggplot(Maize.by.zygosity, aes(x=Chromosome, fill=Zygosity, color=Zygosity)) + geom_bar(bins=12, position = "dodge")
+g + ggtitle("Zygosity by chromosome - Maize")
 ```
 
 ## Write files 
