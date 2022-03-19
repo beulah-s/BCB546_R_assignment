@@ -1,0 +1,12 @@
+---
+title: "Lizer_review"
+output: html_document
+---
+
+### A couple of things I noticed
+1. You load up the snp data twice, probably can take one of those out.
+2. There are a few times that `view()` is used that I'm not sure are intentionally meant as commands to be run or if they are intended as optional commands for the reviewer. 
+3. Having everything under one "run" button is fine but it might also be good to break it up into a few sections. You can always run all if you really want to see if it all works.
+4. Some of the graphs have there labels all squished together, this is something that happened to mine as well and I'm not 100% certain of the fix. In that same vein, they could also use titles using the `ggtitle()` function. 
+
+Overall, I think it's all very well done. Nice Job!
